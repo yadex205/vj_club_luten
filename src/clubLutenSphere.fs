@@ -18,39 +18,47 @@ mat2 rotate2d(float radian) {
 }
 
 float sdf(vec3 position) {
-  position = mod(position, 4.0) - 2.0 + step(vec3(10.0, 10.0, 10.0), position) * 1000000.0;
-  return length(max(abs(position) - vec3(0.5, 0.5, 0.5), 0.0));
+  position.xy = mod(position.xy, 8.0 - mod(TIME, 8.0) * 2.0) - 4.0 + mod(TIME, 8.0) * 1.0;
+  position.z = mod(position.z, 16.0) - 8.0;
+  return length(max(abs(position) - vec3(0.2, 0.2, 1.0), 0.0));
 }
 
 void main() {
-  float isScreen1 = step(0.0 + 0.012, isf_FragNormCoord.x) * step(isf_FragNormCoord.x, 0.5 - 0.012) * step(0.5 + 0.0145, isf_FragNormCoord.y) * step(isf_FragNormCoord.y, 1.0 - 0.0145);
-  float isScreen2 = step(0.5 + 0.016, isf_FragNormCoord.x) * step(isf_FragNormCoord.x, 1.0 - 0.016) * step(0.5 + 0.0155, isf_FragNormCoord.y) * step(isf_FragNormCoord.y, 1.0 - 0.0155);
+  // float isScreen1 = step(0.0 + 0.012, isf_FragNormCoord.x) * step(isf_FragNormCoord.x, 0.5 - 0.012) * step(0.5 + 0.0145, isf_FragNormCoord.y) * step(isf_FragNormCoord.y, 1.0 - 0.0145);
+  float isScreen1 = step(isf_FragNormCoord.x, 0.5) * step(0.5, isf_FragNormCoord.y);
+  // float isScreen2 = step(0.5 + 0.016, isf_FragNormCoord.x) * step(isf_FragNormCoord.x, 1.0 - 0.016) * step(0.5 + 0.0155, isf_FragNormCoord.y) * step(isf_FragNormCoord.y, 1.0 - 0.0155);
+  float isScreen2 = step(0.5, isf_FragNormCoord.x) * step(0.5, isf_FragNormCoord.y);
   float isScreen3 = step(isf_FragNormCoord.x, 0.5) * step(isf_FragNormCoord.y, 0.5);
   float isScreen4 = step(0.5, isf_FragNormCoord.x) * step(isf_FragNormCoord.y, 0.5);
+
+  float rayZAdjust = 0.35;
 
   vec3 rayScreen1 = normalize(vec3(
     map(isf_FragNormCoord.x, 0.0 + 0.012, 0.5 - 0.012, -1.0, 1.0),
     1.0,
-    map(isf_FragNormCoord.y, 0.5 + 0.015, 1.0 - 0.015, -0.60, 1.40)
+    map(isf_FragNormCoord.y, 0.5 + 0.015, 1.0 - 0.015, -1.0 + rayZAdjust, 1.0 + rayZAdjust)
   ));
   vec3 rayScreen2 = normalize(vec3(
     map(isf_FragNormCoord.x, 0.5 + 0.0135, 1.0 - 0.0135, -1.0, 1.0),
     map(isf_FragNormCoord.y, 0.5 + 0.013, 1.0 - 0.0130, -1.0, 1.0),
-    1.40
+    -1.0 + rayZAdjust
   ));
-  vec3 ray = isScreen1 * rayScreen1 + isScreen2 * rayScreen2;
+  vec3 ray = abs(isScreen1 * rayScreen1 + isScreen2 * rayScreen2);
 
-  vec3 cameraPosition = vec3(0.0, -0.0, -1.5 - mod(TIME, 8.0));
+  vec3 cameraPosition = vec3(0.0, 0.0, mod(TIME * 4.0, 16.0));
   vec3 rayPosition = cameraPosition;
   float theDistance = 1.0;
 
-  for (float i = 1.0; i < 64.0; i++) {
+  for (float i = 1.0; i < 32.0; i++) {
     theDistance = sdf(rayPosition);
     rayPosition += ray * theDistance;
   }
 
-  // gl_FragColor = vec4(step(theDistance, 0.001), 0.0, 0.0, 1.0);
-  gl_FragColor = vec4(step(theDistance, 0.001), (1.0 - max(isScreen1, isScreen2)) * step(0.5, isf_FragNormCoord.y) * step(0.5, isf_FragNormCoord.x), (1.0 - max(isScreen1, isScreen2)) * step(0.5, isf_FragNormCoord.y) * step(isf_FragNormCoord.x, 0.5), 1.0);
+  float isHit = step(theDistance, 0.001);
+  float fragColor = isHit * 0.8;
+
+  gl_FragColor = vec4(fragColor, fragColor, fragColor, 1.0);
+  // gl_FragColor = vec4(step(theDistance, 0.001), (1.0 - max(isScreen1, isScreen2)) * step(0.5, isf_FragNormCoord.y) * step(0.5, isf_FragNormCoord.x), (1.0 - max(isScreen1, isScreen2)) * step(0.5, isf_FragNormCoord.y) * step(isf_FragNormCoord.x, 0.5), 1.0);
   // gl_FragColor = vec4(
   //   step(0.0 + 0.012, isf_FragNormCoord.x) * step(isf_FragNormCoord.x, 0.5 - 0.012) * step(0.5 + 0.016, isf_FragNormCoord.y) * step(isf_FragNormCoord.y, 1.0 - 0.016),
   //   step(0.5 + 0.012, isf_FragNormCoord.x) * step(isf_FragNormCoord.x, 1.0 - 0.012) * step(0.5 + 0.014, isf_FragNormCoord.y) * step(isf_FragNormCoord.y, 1.0 - 0.014),
