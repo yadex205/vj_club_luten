@@ -201,6 +201,11 @@ class IsfProgram extends ShaderProgram {
   #timeUniformLocation;
 
   /**
+   * @type {WebGLUniformLocation}
+   */
+  #renderSizeUniformLocation;
+
+  /**
    * @param vertexShader {Shader}
    * @param fragmentShader {Shader}
    */
@@ -218,16 +223,28 @@ class IsfProgram extends ShaderProgram {
     gl.vertexAttribPointer(positionAttributeLocation, 2, gl.FLOAT, false, 0, 0);
 
     const timeUniformLocation = this.getUniformLocation("TIME");
+    const renderSizeUniformLocation = this.getUniformLocation("RENDERSIZE");
     this.#timeUniformLocation = timeUniformLocation;
+    this.#renderSizeUniformLocation = renderSizeUniformLocation;
   }
 
   /**
    * @param time {number}
    */
-  set currentTime(time) {
+  setCurrentTime(time) {
     const gl = this.gl;
 
     gl.uniform1f(this.#timeUniformLocation, time);
+  }
+
+  /**
+   * @param width {number}
+   * @param height {number}
+   */
+  setRenderSize(width, height) {
+    const gl = this.gl;
+
+    gl.uniform2f(this.#renderSizeUniformLocation, width, height);
   }
 }
 
@@ -313,7 +330,8 @@ class Application {
     gl.clearDepth(1.0);
     gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
 
-    isfProgram.currentTime = currentTimeFromStartMs / 1000;
+    isfProgram.setCurrentTime(currentTimeFromStartMs / 1000);
+    isfProgram.setRenderSize(1920, 1080);
 
     gl.drawArrays(gl.TRIANGLE_FAN, 0, 4);
     gl.flush();
