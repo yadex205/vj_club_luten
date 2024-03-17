@@ -1,0 +1,22 @@
+{
+  "name": "vj_club_luten",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/yadex205/vj_club_luten.git"
+  },
+  "author": "Kanon Kakuno <yadex205@yadex205.com>",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/yadex205/vj_club_luten/issues"
+  },
+  "homepage": "https://github.com/yadex205/vj_club_luten#readme",
+  "scripts": {
+    "start": "browser-sync start --config browser-sync.js"
+  },
+  "devDependencies": {
+    "browser-sync": "^3.0.2"
+  }
+}

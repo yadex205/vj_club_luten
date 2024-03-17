@@ -1,0 +1,32 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <title>ISF Viewer</title>
+
+    <style>
+      body {
+        margin: 0;
+      }
+    </style>
+
+    <script src="./app.js"></script>
+    <script>
+      const isfFilePath = "./clubLutenSphere.fs";
+
+      window.addEventListener("load", async () => {
+        const canvasWrapperEl = document.querySelector(".canvas-wrapper");
+        const app = new Application();
+
+        await app.init(isfFilePath);
+
+        canvasWrapperEl.append(app.canvas);
+
+        app.run();
+      });
+    </script>
+  </head>
+  <body>
+    <div class="canvas-wrapper"></div>
+  </body>
+</html>
